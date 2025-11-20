@@ -1,0 +1,258 @@
+:root {
+    --primary-color: #c2e7ff; 
+    --primary-text: #0b57d0; 
+    --active-bg: #eaf1fb; 
+    --unread-color: #202124;
+    --read-color: #5f6368;
+    --border-color: #dadce0;
+    --header-height: 56px;
+    --sidebar-width: 280px;
+}
+
+body {
+    background-color: #f6f8fc;
+    padding-top: var(--header-height); 
+    overflow-x: hidden;
+}
+
+/* --- Global Icons/Buttons --- */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+}
+.btn-icon {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--read-color);
+}
+.btn-icon:hover {
+    background-color: #f0f0f0;
+}
+.profile-icon-lg {
+    font-size: 64px;
+    color: #ccc;
+    display: block;
+    margin: 0 auto 5px;
+}
+
+/* --- Top Header --- */
+.app-header {
+    height: var(--header-height);
+    z-index: 1030;
+}
+.logo-text {
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--read-color);
+}
+.search-box-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+.search-box {
+    max-width: 720px;
+    min-width: 300px;
+    background-color: #eaf1fb;
+    border-radius: 8px;
+}
+.search-box input {
+    background-color: transparent !important;
+}
+
+/* --- Main Layout Structure --- */
+#main-content-wrapper {
+    min-height: calc(100vh - var(--header-height));
+}
+.content-area {
+    position: relative; 
+    overflow-x: hidden;
+}
+.view-panel {
+    width: 100%;
+    min-height: calc(100vh - var(--header-height));
+    background-color: #fff;
+    overflow-y: auto; /* Handles scrolling for both list and detail */
+}
+
+/* --- Left Sidebar --- */
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    border-right: 1px solid var(--border-color);
+    padding-top: 1rem;
+    background-color: #fff;
+    transition: transform 0.3s ease;
+}
+@media (max-width: 991.98px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: var(--header-height);
+        bottom: 0;
+        z-index: 1020;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 6px rgba(0, 0, 0, 0.15);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+.compose-btn {
+    background-color: var(--primary-color);
+    color: #1f1f1f;
+    font-weight: 500;
+    padding: 14px 24px;
+}
+.sidebar-nav .nav-link {
+    color: var(--read-color);
+    padding: 8px 24px;
+    border-radius: 0 50px 50px 0;
+    font-weight: 500;
+}
+.sidebar-nav .nav-link.active {
+    background-color: var(--active-bg);
+    color: var(--primary-text);
+    font-weight: 700;
+}
+.sidebar-nav .nav-link.active .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 500;
+}
+.badge {
+    color: var(--primary-text) !important;
+}
+
+/* --- Email Row --- */
+.email-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: none;
+}
+.email-row:hover {
+    box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60, 64, 67, 0.302), 0 1px 6px 2px rgba(60, 64, 67, 0.149);
+    z-index: 1;
+}
+.email-col-1, .email-col-2 { flex-basis: 30px; flex-shrink: 0; }
+.email-col-3 { flex-basis: 150px; flex-shrink: 0; margin-right: 10px; overflow: hidden; text-overflow: ellipsis; }
+.email-col-4 { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; }
+.email-col-5 { flex-basis: 80px; flex-shrink: 0; text-align: right; }
+.unread-row {
+    font-weight: 700;
+    color: var(--unread-color);
+}
+.read-row {
+    font-weight: 400;
+    color: var(--read-color);
+    background-color: #f6f8fc;
+}
+
+/* --- Email Detail (Content Fix) --- */
+.detail-header {
+    background-color: #fff;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.subject-line {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--unread-color);
+}
+.profile-icon { font-size: 32px; color: #ccc; }
+/* FIX: Removed explicit min-height calculation to prevent content from disappearing */
+.email-body-content {
+    overflow-y: visible; 
+    height: auto; 
+    padding-bottom: 50px !important;
+}
+
+/* --- Compose Window (FULL SCREEN MODAL) --- */
+.compose-window-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 1050; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.compose-window-modal.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.compose-window {
+    width: 90%;
+    max-width: 900px; 
+    height: 90%;
+    max-height: 700px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+}
+.compose-header {
+    background-color: #404040;
+    color: #fff;
+    padding: 8px 12px !important;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+.compose-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.compose-body input {
+    height: 40px;
+    padding: 8px 12px;
+}
+.compose-body input:focus {
+    box-shadow: none;
+    border-bottom: 1px solid #ccc !important;
+}
+.rich-text-area {
+    flex-grow: 1;
+    border-top: 1px solid var(--border-color);
+    overflow-y: auto;
+    min-height: 100px; 
+}
+.compose-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 8px 12px !important;
+    flex-shrink: 0;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 767.98px) {
+    .compose-window {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+    .compose-header {
+        border-radius: 0;
+    }
+}
