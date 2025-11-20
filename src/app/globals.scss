@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #f8f9fa;
+  font-family: Arial, sans-serif;
+}
+
+// .layoutWrapper {
+//   display: grid;
+//   grid-template-columns: 260px 1fr;   // desktop: sidebar + content
+//   height: 100vh;
+
+//   @media (max-width: 768px) {
+//     grid-template-columns: 1fr;      // mobile: sidebar collapses
+//   }
+// }
+
+// .contentArea {
+//   overflow-y: auto;
+//   background: #f5f5f5;
+// }
+
+// .sidebar {
+//   width: 260px;
+//   background: #ffffff;
+//   height: 100%;
+//   border-right: 1px solid #e5e5e5;
+
+//   @media (max-width: 768px) {
+//     display: none; // hides only on mobile
+//   }
+// }
