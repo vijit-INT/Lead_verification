@@ -1,13 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./gmail.module.css";
-
+// import styles from "./gmail.module.css";
 export default function NewGamilPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activePanel, setActivePanel] = useState("inbox");
   const [selectedEmail, setSelectedEmail] = useState(null);
-
+  const styles = {
+    appHeader: "app-header",
+    logoText: "logo-text",
+    searchBoxContainer: "search-box-container",
+    searchBox: "search-box",
+    sidebar: "sidebar",
+  };
   const openEmail = (id) => {
     setSelectedEmail(id);
   };
