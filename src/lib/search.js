@@ -1,30 +1,36 @@
 import axios from "axios";
 
-const GOOGLE_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
-const GOOGLE_CX = process.env.NEXT_PUBLIC_GOOGLE_CX;
+const SERP_API_KEY = process.env.NEXT_PUBLIC_SERP_API_KEY;
 
 /**
- * Executes a search query using Google Custom Search JSON API
+ * Executes a search query using SERP API
  * @param {string} query
  * @returns {Promise<Array>} List of search items
  */
 export async function googleSearch(query) {
-  if (!GOOGLE_API_KEY || !GOOGLE_CX) {
-    console.error("Missing Google Search configuration");
+  if (!SERP_API_KEY) {
+    console.error("Missing SERP API configuration");
     return [];
   }
 
   try {
-    const res = await axios.get("https://www.googleapis.com/customsearch/v1", {
+    const res = await axios.get("https://serpapi.com/search", {
       params: {
-        key: GOOGLE_API_KEY,
-        cx: GOOGLE_CX,
+        api_key: SERP_API_KEY,
         q: query,
+        engine: "google",
       },
     });
-    return res.data.items || [];
+    
+    // Transform SERP API response to match expected format
+    const items = res.data.organic_results || [];
+    return items.map((item) => ({
+      link: item.link,
+      title: item.title,
+      snippet: item.snippet,
+    })) || [];
   } catch (error) {
-    console.error("Google Search Error:", error);
+    console.error("SERP API Error:", error);
     return [];
   }
 }
