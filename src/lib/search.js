@@ -21,14 +21,16 @@ export async function googleSearch(query) {
         engine: "google",
       },
     });
-    
+
     // Transform SERP API response to match expected format
     const items = res.data.organic_results || [];
-    return items.map((item) => ({
-      link: item.link,
-      title: item.title,
-      snippet: item.snippet,
-    })) || [];
+    return (
+      items.map((item) => ({
+        link: item.link,
+        title: item.title,
+        snippet: item.snippet,
+      })) || []
+    );
   } catch (error) {
     console.error("SERP API Error:", error);
     return [];
@@ -36,19 +38,62 @@ export async function googleSearch(query) {
 }
 
 /**
- * Finds the most likely LinkedIn profile URL for a person
+ * Finds the most likely LinkedIn profile URL for a person with enhanced accuracy
  */
-export async function findLinkedInProfile(name, company) {
-  const query = `site:linkedin.com/in "${name}" "${company}"`;
-  const results = await googleSearch(query);
+export async function findLinkedInProfile(name, company, role = "") {
+  // Try exact match first
+  const queries = [
+    `site:linkedin.com/in "${name}" "${company}"`,
+    `site:linkedin.com/in "${name}" ${role}`,
+    `site:linkedin.com/in "${name}"`,
+  ];
 
-  const linkedin = results.find((r) => r.link.includes("linkedin.com/in"));
+  for (const query of queries) {
+    const results = await googleSearch(query);
+    const linkedin = results.find(
+      (r) =>
+        r.link.includes("linkedin.com/in") &&
+        !r.link.includes("/dir/") && // Ignore directory pages
+        !r.link.includes("/posts/"), // Ignore post pages
+    );
 
-  return {
-    url: linkedin?.link || null,
-    snippet: linkedin?.snippet || null,
-    title: linkedin?.title || null,
-  };
+    if (linkedin) {
+      return {
+        url: linkedin.link,
+        snippet: linkedin.snippet,
+        title: linkedin.title,
+        status: "verified",
+      };
+    }
+  }
+
+  return { url: null, snippet: null, title: null, status: "not_found" };
+}
+
+/**
+ * Performs deep research on a person across multiple platforms and news
+ */
+export async function deepPersonSearch(name, company, role = "") {
+  const queries = [
+    `"${name}" "${company}" interview OR news OR article`,
+    `"${name}" professional background skills`,
+    `site:twitter.com "${name}" "${company}"`,
+    `site:github.com "${name}"`,
+    `"${name}" ${role} portfolios`,
+  ];
+
+  const searchPromises = queries.map((q) => googleSearch(q));
+  const resultsArray = await Promise.all(searchPromises);
+
+  // Flatten and return unique results
+  const allResults = resultsArray.flat();
+  const seenUrls = new Set();
+
+  return allResults.filter((item) => {
+    if (!item.link || seenUrls.has(item.link)) return false;
+    seenUrls.add(item.link);
+    return true;
+  });
 }
 
 /**
@@ -58,9 +103,12 @@ export async function findCompanyLinkedIn(company) {
   const query = `site:linkedin.com/company "${company}"`;
   const results = await googleSearch(query);
 
-  // Results usually prioritize the exact company page at the top
-  const companyPage = results.find((r) =>
-    r.link.includes("linkedin.com/company"),
+  // Filter to find the most relevant company page
+  const companyPage = results.find(
+    (r) =>
+      r.link.includes("linkedin.com/company") &&
+      !r.link.includes("/life") &&
+      !r.link.includes("/jobs"),
   );
 
   return {
@@ -68,6 +116,31 @@ export async function findCompanyLinkedIn(company) {
     snippet: companyPage?.snippet || null,
     title: companyPage?.title || null,
   };
+}
+
+/**
+ * Performs multiple targeted searches for deep company insights
+ */
+export async function deepCompanySearch(company) {
+  const queries = [
+    `"${company}" company overview products services`,
+    `"${company}" headquarters address employee count revenue`,
+    `"${company}" latest news funding rounds acquisitions`,
+    `site:linkedin.com/company "${company}" about`,
+  ];
+
+  const searchPromises = queries.map((q) => googleSearch(q));
+  const resultsArray = await Promise.all(searchPromises);
+
+  // Flatten and return unique results
+  const allResults = resultsArray.flat();
+  const seenUrls = new Set();
+
+  return allResults.filter((item) => {
+    if (seenUrls.has(item.link)) return false;
+    seenUrls.add(item.link);
+    return true;
+  });
 }
 
 /**

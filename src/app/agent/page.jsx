@@ -1,7 +1,7 @@
 import React from "react";
 import Agents from "../component/Agents";
 
-const page = () => {
+const AgentPage = () => {
   return (
     <div>
       <Agents />
@@ -9,4 +9,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default AgentPage;

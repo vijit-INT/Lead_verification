@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import axios from "axios";
 import styles from "./Agents.module.css";
 
@@ -23,6 +24,21 @@ export default function Agents() {
     }));
   };
 
+  // Chat State
+  const [chatInput, setChatInput] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatSearching, setChatSearching] = useState(false);
+  const chatEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatHistory, chatLoading, chatSearching]);
+
   // Axios instance (optional, but good practice for base URL)
   // import axios from 'axios'; inside the function if not imported at top, but usually top-level
 
@@ -35,8 +51,11 @@ export default function Agents() {
     findLinkedInProfile,
     findCompanyLinkedIn,
     findCompanyWebsite,
+    deepCompanySearch,
+    deepPersonSearch,
+    googleSearch,
   } = require("../../../lib/search");
-  const { enrichProfile } = require("../../../lib/gemini");
+  const { enrichProfile, askFollowUp } = require("../../../lib/gemini");
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -47,14 +66,20 @@ export default function Agents() {
     try {
       console.log("🚀 Starting Client-Side Search...");
 
-      // 1. Parallel Search Execution
-      const [userLinkedIn, companyLinkedIn, companyWebsite] = await Promise.all(
-        [
-          findLinkedInProfile(formData.name, formData.companyName),
-          findCompanyLinkedIn(formData.companyName),
-          findCompanyWebsite(formData.companyName),
-        ],
-      );
+      // 1. Parallel Multi-Angle Intelligence Gathering
+      const [
+        userLinkedIn,
+        companyLinkedIn,
+        companyWebsite,
+        deepCompanyResults,
+        deepPersonResults,
+      ] = await Promise.all([
+        findLinkedInProfile(formData.name, formData.companyName, formData.role),
+        findCompanyLinkedIn(formData.companyName),
+        findCompanyWebsite(formData.companyName),
+        deepCompanySearch(formData.companyName),
+        deepPersonSearch(formData.name, formData.companyName, formData.role),
+      ]);
 
       if (!userLinkedIn.url && !companyLinkedIn.url) {
         throw new Error(
@@ -67,11 +92,13 @@ export default function Agents() {
         companyLinkedIn,
       });
 
-      // 2. AI Enrichment (Gemini)
+      // 2. Advanced AI Synthesis
       const searchData = {
         userLinkedIn,
         companyLinkedIn,
         companyWebsite,
+        deepCompanyResults,
+        deepPersonResults,
       };
 
       const enrichedData = await enrichProfile(searchData, formData);
@@ -88,6 +115,52 @@ export default function Agents() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChatSubmit = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim() || chatLoading) return;
+
+    const userQuestion = chatInput;
+    setChatInput("");
+    setChatHistory((prev) => [
+      ...prev,
+      { role: "user", content: userQuestion },
+    ]);
+    setChatLoading(true);
+
+    try {
+      // 1. New Global Search based on question
+      setChatSearching(true);
+      const searchContext = `${userQuestion} ${formData.name} ${formData.companyName}`;
+      const newGlobalKnowledge = await googleSearch(searchContext);
+      setChatSearching(false);
+
+      // 2. Ask Gemini with full context
+      const aiResponse = await askFollowUp(
+        userQuestion,
+        results,
+        newGlobalKnowledge,
+      );
+
+      setChatHistory((prev) => [...prev, { role: "ai", content: aiResponse }]);
+    } catch (err) {
+      console.error("Chat Error:", err);
+      setChatHistory((prev) => [
+        ...prev,
+        {
+          role: "ai",
+          content: "I encountered an error researching that. Please try again.",
+        },
+      ]);
+    } finally {
+      setChatLoading(false);
+      setChatSearching(false);
+    }
+  };
+
+  const handleClearChat = () => {
+    setChatHistory([]);
   };
 
   // GET Request (Example placeholder)
@@ -134,34 +207,38 @@ export default function Agents() {
 
   return (
     <div className={`${styles.agentsContainer} container-fluid p-4`}>
-      <div className="row">
-        <div className="col-12">
-          <h1 className="mb-4">
-            <span className="material-symbols-outlined me-2">
-              person_search
-            </span>
-            LinkedIn Profile & Company Search
+      <div className={styles.pageHeader}>
+        <div className={styles.headerTitle}>
+          <h1>
+            <div className={styles.iconCircle}>
+              <span className="material-symbols-outlined">person_search</span>
+            </div>
+            AI Lead Investigator
           </h1>
+          <p>Find and enrich profile data with autonomous AI agents.</p>
         </div>
+        <Link href="/" className={styles.backButton}>
+          <span className="material-symbols-outlined">dashboard</span>
+          Back to Dashboard
+        </Link>
       </div>
 
       <div className="row">
-        {/* Form Section */}
-        <div className="col-lg-4 mb-4">
-          <div className={`${styles.formCard} card shadow-sm`}>
-            <div className="card-body">
-              <h5 className="card-title mb-4">
-                <span className="material-symbols-outlined me-2">input</span>
-                Enter User Details
-              </h5>
-              <form onSubmit={handleSearch}>
-                <div className="mb-3">
-                  <label htmlFor="name" className="form-label">
-                    Name <span className="text-danger">*</span>
-                  </label>
+        <div className="col-12">
+          <div className={styles.formCard}>
+            <h5 className="mb-4 d-flex align-items-center gap-2">
+              <span className="material-symbols-outlined text-primary">
+                person_add
+              </span>
+              Investigation Parameters
+            </h5>
+            <form onSubmit={handleSearch}>
+              <div className={styles.inputGrid}>
+                <div className={styles.inputField}>
+                  <label htmlFor="name">Lead Name *</label>
                   <input
                     type="text"
-                    className="form-control"
+                    className={styles.customInput}
                     id="name"
                     name="name"
                     value={formData.name}
@@ -171,43 +248,11 @@ export default function Agents() {
                   />
                 </div>
 
-                <div className="mb-3">
-                  <label htmlFor="role" className="form-label">
-                    Role
-                  </label>
+                <div className={styles.inputField}>
+                  <label htmlFor="companyName">Company Name *</label>
                   <input
                     type="text"
-                    className="form-control"
-                    id="role"
-                    name="role"
-                    value={formData.role}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Software Engineer"
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Email <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g., vijit.singh@intglobal.com"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="companyName" className="form-label">
-                    Company Name <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
+                    className={styles.customInput}
                     id="companyName"
                     name="companyName"
                     value={formData.companyName}
@@ -217,36 +262,62 @@ export default function Agents() {
                   />
                 </div>
 
+                <div className={styles.inputField}>
+                  <label htmlFor="role">Industry/Role</label>
+                  <input
+                    type="text"
+                    className={styles.customInput}
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Software Engineer"
+                  />
+                </div>
+
+                <div className={styles.inputField}>
+                  <label htmlFor="email">Email Address</label>
+                  <input
+                    type="email"
+                    className={styles.customInput}
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="e.g., name@company.com"
+                  />
+                </div>
+
                 <button
                   type="submit"
-                  className="btn btn-primary w-100"
+                  className={styles.searchBtn}
                   disabled={loading}
                 >
                   {loading ? (
                     <>
                       <span
-                        className="spinner-border spinner-border-sm me-2"
+                        className="spinner-border spinner-border-sm"
                         role="status"
-                        aria-hidden="true"
                       ></span>
                       Searching...
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined me-2">
-                        search
+                      <span className="material-symbols-outlined">
+                        analytics
                       </span>
-                      Search LinkedIn
+                      Start Investigation
                     </>
                   )}
                 </button>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
+      </div>
 
-        {/* Results Section */}
-        <div className="col-lg-8">
+      <div className="row justify-content-center">
+        <div className="col-lg-10">
           {error && (
             <div className="alert alert-danger" role="alert">
               <span className="material-symbols-outlined me-2">error</span>
@@ -464,25 +535,7 @@ export default function Agents() {
                             {results.companyProfile.linkedinCompanyId}
                           </div>
                         )}
-                        {results.companyProfile.companyWebsite && (
-                          <div className="col-12 mb-3">
-                            <strong>Website:</strong>{" "}
-                            <a
-                              href={
-                                results.companyProfile.companyWebsite.startsWith(
-                                  "http",
-                                )
-                                  ? results.companyProfile.companyWebsite
-                                  : `https://${results.companyProfile.companyWebsite}`
-                              }
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary"
-                            >
-                              {results.companyProfile.companyWebsite}
-                            </a>
-                          </div>
-                        )}
+
                         {results.companyProfile.linkedinCompanyUrl && (
                           <div className="col-12 mb-3">
                             <strong>LinkedIn Company Page:</strong>{" "}
@@ -663,13 +716,125 @@ export default function Agents() {
                     </div>
                   </div>
                 )}
+              {/* AI Follow-up Chat Section */}
+              <div className={styles.chatContainer}>
+                <div className="d-flex align-items-center justify-content-between mb-4">
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">
+                      psychology
+                    </span>
+                    <h5 className="mb-0">Interactive AI Analyst</h5>
+                  </div>
+                  {chatHistory.length > 0 && (
+                    <button
+                      onClick={handleClearChat}
+                      className={styles.clearBtn}
+                      title="Clear History"
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: "1.2rem" }}
+                      >
+                        delete_sweep
+                      </span>
+                      Clear Chat
+                    </button>
+                  )}
+                </div>
+
+                <div className={styles.chatHistory}>
+                  {chatHistory.length === 0 && (
+                    <div className="text-center text-muted py-4">
+                      <p className="small mb-0">
+                        Ask deep questions about this lead or their company.
+                      </p>
+                      <p className="small">
+                        The agent will research the live web for you.
+                      </p>
+                    </div>
+                  )}
+                  {chatHistory.map((msg, i) => (
+                    <div
+                      key={i}
+                      className={`${styles.message} ${
+                        msg.role === "user"
+                          ? styles.userMessage
+                          : styles.aiMessage
+                      }`}
+                    >
+                      <div className={styles.messageHeader}>
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontSize: "1rem" }}
+                        >
+                          {msg.role === "user" ? "person" : "smart_toy"}
+                        </span>
+                        {msg.role === "user" ? "You" : "AI Agent"}
+                      </div>
+                      <div style={{ whiteSpace: "pre-wrap" }}>
+                        {msg.content}
+                      </div>
+                    </div>
+                  ))}
+                  {chatLoading && (
+                    <div className={`${styles.message} ${styles.aiMessage}`}>
+                      <div className={styles.messageHeader}>
+                        <span
+                          className="material-symbols-outlined"
+                          style={{ fontSize: "1rem" }}
+                        >
+                          smart_toy
+                        </span>
+                        AI Agent
+                      </div>
+                      <div className="d-flex align-items-center gap-2">
+                        <span
+                          className="spinner-border spinner-border-sm"
+                          role="status"
+                        ></span>
+                        Analysing...
+                      </div>
+                    </div>
+                  )}
+                  {chatSearching && (
+                    <div className={styles.aiSearching}>
+                      <span className="material-symbols-outlined pulse">
+                        public
+                      </span>
+                      Scouring global intelligence for fresh data...
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+
+                <form
+                  onSubmit={handleChatSubmit}
+                  className={styles.chatInputArea}
+                >
+                  <input
+                    type="text"
+                    className={styles.chatInput}
+                    placeholder="Ask a question (e.g., 'What are their recent product launches?' or 'Find his email schema')"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    disabled={chatLoading}
+                  />
+                  <button
+                    type="submit"
+                    className={styles.sendBtn}
+                    disabled={chatLoading || !chatInput.trim()}
+                  >
+                    <span className="material-symbols-outlined">send</span>
+                  </button>
+                </form>
+              </div>
             </div>
           )}
 
           {!loading && !results && !error && (
             <div className="alert alert-info" role="alert">
               <span className="material-symbols-outlined me-2">info</span>
-              Enter user details and click "Search LinkedIn" to get started.
+              Enter user details and click "Start Investigation" to get started.
             </div>
           )}
         </div>
