@@ -4,6 +4,15 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import styles from "./Agents.module.css";
+import {
+  findLinkedInProfile,
+  findCompanyLinkedIn,
+  findCompanyWebsite,
+  deepCompanySearch,
+  deepPersonSearch,
+  googleSearch,
+} from "../../../lib/search";
+import { enrichProfile, askFollowUp } from "../../../lib/gemini";
 
 export default function Agents() {
   const [formData, setFormData] = useState({
@@ -47,15 +56,6 @@ export default function Agents() {
   // POST Request (Search)
   // Client-side Logic Imports
   // (In a real project, import these at the top. For this refactor, we are replacing the body).
-  const {
-    findLinkedInProfile,
-    findCompanyLinkedIn,
-    findCompanyWebsite,
-    deepCompanySearch,
-    deepPersonSearch,
-    googleSearch,
-  } = require("../../../lib/search");
-  const { enrichProfile, askFollowUp } = require("../../../lib/gemini");
 
   const handleSearch = async (e) => {
     e.preventDefault();
