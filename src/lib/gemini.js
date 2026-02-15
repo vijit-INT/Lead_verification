@@ -25,19 +25,45 @@ export async function enrichProfile(searchResults, userData) {
     Target Person: ${userData.name}
     Claimed Role: ${userData.role}
     Claimed Company: ${userData.companyName}
+    Requirement: ${userData.requirement || "N/A"}
+    Budget: ${userData.budget || "N/A"}
     
     Raw Intelligence Gathered:
     ${JSON.stringify(searchResults, null, 2)}
     
     Advanced Investigative Protocol:
     1. CROSS-VERIFICATION: Compare User Input with Search Evidence. If a LinkedIn profile is found, treat it as the "Source of Truth" for current role and company.
-    2. ENTITY RESOLUTION: In the "deepPersonResults", identify which snippets definitely belong to the target person vs. others with the same name. Look for role/company overlaps.
-    3. GAP ANALYSIS: If some fields (like education) are missing in one snippet, look for them in the "deepPersonResults".
-    4. COMPANY INTELLIGENCE: Analyze "deepCompanyResults" to identify technologies, funding rounds, and recent strategic moves.
-    5. DEDUCTIVE REASONING: Infer "skills" from the person's projects, news mentions, or job descriptions found in snippets.
+    2. ENTITY RESOLUTION: In the "deepPersonResults", identify which snippets definitely belong to the target person vs. others with the same name.
+    3. BUSINESS ALIGNMENT ANALYSIS: Critique whether the "Requirement" makes logical sense for their "Claimed Company".
+    4. PUBLIC/PRIVATE FINANCIAL AUDIT: Determine if the company is Publicly Listed. Search specifically for "current year financial statements", "annual reports", or "investor relations" news. If private, look for "funding rounds", "valuation news", or "next year plans".
+    5. STRATEGIC ROADMAP CHECK: Look for mentions of "expansion plans", "digital transformation", or "tech initiatives" for the current/next year. Does the "Requirement" align with these announced plans?
+    6. BUDGET VIABILITY: Analyze the "Budget" against the 4 Lakhs (400,000 INR) project minimum for Indus Net Technologies.
+    7. SCORING LOGIC: Assign an alignment score (0-100). Explicitly state "Points Earned" (why you gave points) and "Points Deducted" (why you cut points).
 
     JSON OUTPUT REQUIREMENTS (Be Extremely Detailed):
     {
+      "businessAnalysis": {
+        "requirementAnalysis": "Detailed breakdown of the requirement and its feasibility",
+        "industryAlignment": "Critical check: Does the requirement match their actual business logic?",
+        "budgetAnalysis": "Analysis based on 4 Lakhs minimum threshold for Indus Net Technologies",
+        "strategicFit": "How this project fits into their current public-facing roadmap",
+        "potentialRisks": [
+          "Identify specific red flags for sales (e.g. Lead asks for X but company roadmap only mentions Y; Company is in cost-cutting mode; Requirement is a 'nice-to-have' but not a strategic priority; History of similar project ghosting in industry news)."
+        ],
+        "recommendation": "Direct recommendation (High Potential / High Risk / Misaligned)",
+        "alignmentScore": 0-100,
+        "scoringBreakdown": {
+          "pointsEarned": [{"point": "Score reason", "value": "+X"}],
+          "pointsDeducted": [{"point": "Deduction reason", "value": "-X"}]
+        }
+      },
+      "financialAudit": {
+        "companyStatus": "Publicly Listed | Private Entity",
+        "financialSummary": "Summary of current year's financials/annual reports if found",
+        "futurePlans": "Deduce next year's plans/initiatives from news/reports",
+        "requirementMatch": "Specific check: Is the user's requirement mentioned or needed in their future plans?",
+        "listingDetails": "Stock exchange info if public, or latest funding info if private"
+      },
       "userProfile": {
         "fullName": "...",
         "currentRole": "...",
@@ -71,11 +97,11 @@ export async function enrichProfile(searchResults, userData) {
         "recentNews": ["Identify specific news dates and events"]
       },
       "additionalInfo": {
-        "confidenceScore": 0.0 to 1.0 (Detailed evaluation),
+        "confidenceScore": 0.0 to 1.0,
         "verificationStatus": "VERIFIED | PROBABLE | UNCERTAIN",
-        "dataSource": "Summary of search breadth (e.g. LinkedIn + News + GitHub)",
+        "dataSource": "Summary of search breadth",
         "lastUpdated": "Current timestamp",
-        "notes": "Analyst's notes on potential data conflicts or interesting findings"
+        "notes": "Analyst's notes"
       }
     }
   `;
