@@ -262,9 +262,9 @@ export default function EnrichedDetails() {
           </span>
           {error || "Lead not found"}
         </div>
-        <Link href="/" className={styles.backButton}>
+        <Link href="/enriched" className={styles.backButton}>
           <span className="material-symbols-outlined">arrow_back</span>
-          Back to Dashboard
+          Back to Enriched List
         </Link>
       </div>
     );
@@ -284,9 +284,9 @@ export default function EnrichedDetails() {
           </h1>
           <p>Comprehensive data synthesis for {data.name}</p>
         </div>
-        <Link href="/" className={styles.backButton}>
-          <span className="material-symbols-outlined">dashboard</span>
-          Back to Dashboard
+        <Link href="/enriched" className={styles.backButton}>
+          <span className="material-symbols-outlined">arrow_back</span>
+          Back to Enriched List
         </Link>
       </div>
 

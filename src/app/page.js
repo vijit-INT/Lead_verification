@@ -60,10 +60,10 @@ export default function Home() {
           <h1>Lead Intel Dashboard</h1>
           <p>Welcome back! Here's what's happening with your leads.</p>
         </div>
-        <Link href="/agent" className={styles.navButton}>
+        {/* <Link href="/agent" className={styles.navButton}>
           <span className="material-symbols-outlined">smart_toy</span>
           Launch AI Agent
-        </Link>
+        </Link> */}
       </header>
 
       <section className={styles.statsGrid}>
@@ -127,7 +127,7 @@ export default function Home() {
               -2.4%
             </span>
           </div>
-          <div className={styles.statValue}>3.2s</div>
+          <div className={styles.statValue}>3.2 - 20.6s</div>
           <div className={styles.statLabel}>Avg. Enrichment Time</div>
         </div>
       </section>
@@ -226,7 +226,21 @@ export default function Home() {
         </div>
 
         <div className={styles.activityCard}>
-          <h5 className="mb-4">Profile Enriched List</h5>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h5 className="mb-0">Profile Enriched List</h5>
+            <Link
+              href="/enriched"
+              className="btn btn-sm text-primary p-0 d-flex align-items-center gap-1 fw-semibold"
+            >
+              View All{" "}
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: "1.2rem" }}
+              >
+                chevron_right
+              </span>
+            </Link>
+          </div>
           {loading ? (
             <div className="text-center py-4">
               <div

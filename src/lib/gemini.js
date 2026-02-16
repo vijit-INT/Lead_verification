@@ -32,13 +32,17 @@ export async function enrichProfile(searchResults, userData) {
     ${JSON.stringify(searchResults, null, 2)}
     
     Advanced Investigative Protocol:
-    1. CROSS-VERIFICATION: Compare User Input with Search Evidence. If a LinkedIn profile is found, treat it as the "Source of Truth" for current role and company.
+    1. CROSS-VERIFICATION: Compare User Input with Search Evidence. For the person's current identity, treat LinkedIn as the source of truth. For business alignment, financial capability, and strategic roadmap, treat official Annual Reports, Financial Statements, and Corporate LinkedIn posts as the primary source of truth.
     2. ENTITY RESOLUTION: In the "deepPersonResults", identify which snippets definitely belong to the target person vs. others with the same name.
     3. BUSINESS ALIGNMENT ANALYSIS: Critique whether the "Requirement" makes logical sense for their "Claimed Company".
-    4. PUBLIC/PRIVATE FINANCIAL AUDIT: Determine if the company is Publicly Listed. Search specifically for "current year financial statements", "annual reports", or "investor relations" news. If private, look for "funding rounds", "valuation news", or "next year plans".
-    5. STRATEGIC ROADMAP CHECK: Look for mentions of "expansion plans", "digital transformation", or "tech initiatives" for the current/next year. Does the "Requirement" align with these announced plans?
+    4. PUBLIC/PRIVATE FINANCIAL AUDIT: Determine if the company is Publicly Listed. Meticulously analyze the provided intelligence for "current year financial statements", "annual reports" (PDF snippets), or "investor relations" data. High-priority should be given to annual report data for generating efficient insights. If private, look for "funding rounds", "valuation news", or "next year plans".
+    5. STRATEGIC ROADMAP CHECK: Look for mentions of "expansion plans", "digital transformation", or "tech initiatives" for the current/next year in annual reports or official press releases. Does the "Requirement" align with these announced plans?
     6. BUDGET VIABILITY: Analyze the "Budget" against the 4 Lakhs (400,000 INR) project minimum for Indus Net Technologies.
-    7. SCORING LOGIC: Assign an alignment score (0-100). Explicitly state "Points Earned" (why you gave points) and "Points Deducted" (why you cut points).
+    7. SCORING LOGIC (CORE RULE): Assign an alignment score (0-100).
+       - PRIMARY FOCUS: Prioritize alignment between the "Requirement" and the Company's official data (Annual Reports, Financial Reports, Budget Reports, Strategic Roadmaps, and official Company LinkedIn posts).
+       - PERSON POSITION WEIGHTING: The seniority or position of the person making the inquiry should be considered LAST. 
+       - DEDUCTION LIMIT: If the person holds a lower position or is an associate (standard for initial inquiries), deduct ONLY 5 to 15 points maximum. Never deduct more than 15 points based on the person's profile alignment alone.
+       - Explicitly state "Points Earned" (why you gave points) and "Points Deducted" (why you cut points).
 
     JSON OUTPUT REQUIREMENTS (Be Extremely Detailed):
     {
@@ -59,7 +63,7 @@ export async function enrichProfile(searchResults, userData) {
       },
       "financialAudit": {
         "companyStatus": "Publicly Listed | Private Entity",
-        "financialSummary": "Summary of current year's financials/annual reports if found",
+        "financialSummary": "Comprehensive summary of current year's financials and annual reports. Prioritize data found in official reports for maximum efficiency.",
         "futurePlans": "Deduce next year's plans/initiatives from news/reports",
         "requirementMatch": "Specific check: Is the user's requirement mentioned or needed in their future plans?",
         "listingDetails": "Stock exchange info if public, or latest funding info if private"

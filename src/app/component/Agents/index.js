@@ -1022,7 +1022,47 @@ export default function Agents() {
                   </div>
                 )}
 
-              {/* User Profile Section */}
+              {/* Additional Info Section */}
+              {results.additionalInfo &&
+                Object.keys(results.additionalInfo).length > 0 && (
+                  <div className={`${styles.resultCard} card shadow-sm`}>
+                    <div className="card-header bg-info text-white">
+                      <h5 className="mb-0">
+                        <span className="material-symbols-outlined me-2">
+                          info
+                        </span>
+                        Additional Information
+                      </h5>
+                    </div>
+                    <div className="card-body">
+                      {results.additionalInfo.verificationStatus && (
+                        <p>
+                          <strong>Verification Status:</strong>{" "}
+                          {results.additionalInfo.verificationStatus}
+                        </p>
+                      )}
+                      {results.additionalInfo.dataSource && (
+                        <p>
+                          <strong>Data Source:</strong>{" "}
+                          {results.additionalInfo.dataSource}
+                        </p>
+                      )}
+                      {results.additionalInfo.lastUpdated && (
+                        <p>
+                          <strong>Last Updated:</strong>{" "}
+                          {results.additionalInfo.lastUpdated}
+                        </p>
+                      )}
+                      {results.additionalInfo.notes && (
+                        <p>
+                          <strong>Notes:</strong> {results.additionalInfo.notes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {/* User Profile Section (Moved to end per requirements) */}
               {results.userProfile &&
                 Object.keys(results.userProfile).length > 0 && (
                   <div className={`${styles.resultCard} card shadow-sm mb-4`}>
@@ -1168,46 +1208,6 @@ export default function Agents() {
                             </div>
                           )}
                       </div>
-                    </div>
-                  </div>
-                )}
-
-              {/* Additional Info Section */}
-              {results.additionalInfo &&
-                Object.keys(results.additionalInfo).length > 0 && (
-                  <div className={`${styles.resultCard} card shadow-sm`}>
-                    <div className="card-header bg-info text-white">
-                      <h5 className="mb-0">
-                        <span className="material-symbols-outlined me-2">
-                          info
-                        </span>
-                        Additional Information
-                      </h5>
-                    </div>
-                    <div className="card-body">
-                      {results.additionalInfo.verificationStatus && (
-                        <p>
-                          <strong>Verification Status:</strong>{" "}
-                          {results.additionalInfo.verificationStatus}
-                        </p>
-                      )}
-                      {results.additionalInfo.dataSource && (
-                        <p>
-                          <strong>Data Source:</strong>{" "}
-                          {results.additionalInfo.dataSource}
-                        </p>
-                      )}
-                      {results.additionalInfo.lastUpdated && (
-                        <p>
-                          <strong>Last Updated:</strong>{" "}
-                          {results.additionalInfo.lastUpdated}
-                        </p>
-                      )}
-                      {results.additionalInfo.notes && (
-                        <p>
-                          <strong>Notes:</strong> {results.additionalInfo.notes}
-                        </p>
-                      )}
                     </div>
                   </div>
                 )}

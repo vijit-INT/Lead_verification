@@ -126,6 +126,8 @@ export async function deepCompanySearch(company) {
     `"${company}" company overview products services`,
     `"${company}" headquarters address employee count revenue`,
     `"${company}" latest news funding rounds acquisitions`,
+    `"${company}" annual report financial statement filetype:pdf`,
+    `"${company}" strategic roadmap expansion plans 2024 2025`,
     `site:linkedin.com/company "${company}" about`,
   ];
 
