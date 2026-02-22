@@ -1,8 +1,15 @@
 .emailListContainer {
-  padding: 15px;
+  padding: 20px;
   height: calc(100vh - 70px); // adjust for header height
   overflow-y: auto;
   background: #f7f7f7;
+}
+
+.status {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 1.1rem;
 }
 
 .emailCard {
