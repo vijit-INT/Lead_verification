@@ -15,38 +15,42 @@ export default function Home() {
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsRes, leadsRes] = await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard-stats`),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/getsearchparams`),
-        ]);
+  async function fetchData(silent = false) {
+    if (!silent) setLoading(true);
+    try {
+      const [statsRes, leadsRes] = await Promise.all([
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard-stats`),
+        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/getsearchparams`),
+      ]);
 
-        if (statsRes.data.success) {
-          setStats(statsRes.data.data);
-        }
-
-        if (leadsRes.data.success) {
-          const allLeads = leadsRes.data.data;
-
-          // Enriched: has responce_results
-          setEnrichedLeads(
-            allLeads.filter((item) => item.responce_results !== null),
-          );
-
-          // Recent Activities: leftover data (no responce_results)
-          setRecentActivities(
-            allLeads.filter((item) => item.responce_results === null),
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setLoading(false);
+      if (statsRes.data.success) {
+        setStats(statsRes.data.data);
       }
-    };
+
+      if (leadsRes.data.success) {
+        const allLeads = leadsRes.data.data;
+        setEnrichedLeads(
+          allLeads.filter((item) => item.responce_results !== null),
+        );
+        setRecentActivities(
+          allLeads.filter((item) => item.responce_results === null),
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      // We don't set a global error state here to avoid breaking the dashboard on silent background updates
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
     fetchData();
+
+    // Auto-update dashboard every 30 seconds
+    const interval = setInterval(() => fetchData(true), 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Dummy data for the "chart"

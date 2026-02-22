@@ -1,8 +1,39 @@
+.emailListWrapper {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 70px);
+  background: #f7f7f7;
+}
+
+.listHeader {
+  padding: 10px 20px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.updateStatus {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.refreshing {
+  display: flex;
+  align-items: center;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.lastUpdated {
+  opacity: 0.8;
+}
+
 .emailListContainer {
   padding: 20px;
-  height: calc(100vh - 70px); // adjust for header height
+  flex: 1;
   overflow-y: auto;
-  background: #f7f7f7;
 }
 
 .status {
@@ -21,9 +52,13 @@
   border-radius: 10px;
   cursor: pointer;
   transition: 0.2s ease;
+  border: 1px solid transparent;
 
   &:hover {
-    background: #eef4ff;
+    background: #f8fbff;
+    border-color: #d0e3ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   }
 }
 
