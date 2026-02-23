@@ -78,14 +78,18 @@ export default function Agents() {
     const company = searchParams.get("company");
     const role = searchParams.get("role");
     const email = searchParams.get("email");
+    const budget = searchParams.get("budget");
+    const requirement = searchParams.get("requirement");
     const autoStart = searchParams.get("autoStart");
 
-    if (name || company || role || email) {
+    if (name || company || role || email || budget || requirement) {
       const newFormData = {
         name: name || "",
         companyName: company || "",
         role: role || "",
         email: email || "",
+        budget: budget || "",
+        requirement: requirement || "",
       };
       setFormData(newFormData);
 
