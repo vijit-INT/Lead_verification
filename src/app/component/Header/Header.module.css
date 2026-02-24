@@ -1,0 +1,107 @@
+.settingsModal {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 350px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  z-index: 1002;
+  animation: slideDown 0.2s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.75rem;
+}
+
+.modalHeader h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1f36;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+}
+
+.closeBtn:hover {
+  background: #f1f5f9;
+  color: #1a1f36;
+}
+
+.settingsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.formGroup label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5d6785;
+  text-transform: uppercase;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.inputWrapper input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1a1f36;
+  font-weight: 500;
+  background: #f8fafc;
+}
+
+.inputColor {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+}

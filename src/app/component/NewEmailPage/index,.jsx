@@ -24,7 +24,9 @@ export default function NewGamilPage() {
   return (
     <div>
       {/* Header */}
-      <header className={`${styles.appHeader} d-flex align-items-center p-2 fixed-top bg-white border-bottom`}>
+      <header
+        className={`${styles.appHeader} d-flex align-items-center p-2 fixed-top bg-white border-bottom`}
+      >
         <div className="d-flex align-items-center">
           <button
             className="btn btn-icon d-lg-none"
@@ -40,7 +42,11 @@ export default function NewGamilPage() {
             <span className="input-group-text border-0 bg-transparent ps-3">
               <span className="material-symbols-outlined">search</span>
             </span>
-            <input type="text" className="form-control border-0" placeholder="Search mail" />
+            <input
+              type="text"
+              className="form-control border-0"
+              placeholder="Search mail"
+            />
           </div>
         </div>
 
@@ -56,7 +62,6 @@ export default function NewGamilPage() {
 
       {/* MAIN WRAPPER */}
       <div id="main-content-wrapper" className="d-flex">
-        
         {/* Sidebar */}
         <nav
           className={`${styles.sidebar} ${
@@ -93,16 +98,16 @@ export default function NewGamilPage() {
                     {item === "inbox"
                       ? "inbox"
                       : item === "starred"
-                      ? "star"
-                      : item === "snoozed"
-                      ? "schedule"
-                      : item === "sent"
-                      ? "send"
-                      : item === "drafts"
-                      ? "draft"
-                      : item === "allmail"
-                      ? "all_inbox"
-                      : "delete"}
+                        ? "star"
+                        : item === "snoozed"
+                          ? "schedule"
+                          : item === "sent"
+                            ? "send"
+                            : item === "drafts"
+                              ? "draft"
+                              : item === "allmail"
+                                ? "all_inbox"
+                                : "delete"}
                   </span>
                   {item.charAt(0).toUpperCase() + item.slice(1)}
                 </button>
@@ -113,20 +118,23 @@ export default function NewGamilPage() {
 
         {/* Content Area */}
         <main className="content-area flex-grow-1">
-
           {/* Email List */}
           {!selectedEmail && (
             <div className="email-list-panel">
               <div className="email-list-rows">
-                <div className="email-row unread-row" onClick={() => openEmail(1)}>
+                <div
+                  className="email-row unread-row"
+                  onClick={() => openEmail(1)}
+                >
                   <div className="email-col-3">CEO Office</div>
-                  <div className="email-col-4">
-                    Urgent: All-Hands Meeting…
-                  </div>
+                  <div className="email-col-4">Urgent: All-Hands Meeting…</div>
                   <div className="email-col-5">1:00 AM</div>
                 </div>
 
-                <div className="email-row read-row" onClick={() => openEmail(2)}>
+                <div
+                  className="email-row read-row"
+                  onClick={() => openEmail(2)}
+                >
                   <div className="email-col-3">Google Pay</div>
                   <div className="email-col-4">Your monthly summary…</div>
                   <div className="email-col-5">Yesterday</div>
@@ -146,10 +154,13 @@ export default function NewGamilPage() {
 
               <p>Hi team,</p>
               <p>Please find attached the updated project proposal.</p>
-              <p>Thanks,<br/>Jane</p>
+              <p>
+                Thanks,
+                <br />
+                Jane
+              </p>
             </div>
           )}
-
         </main>
       </div>
     </div>

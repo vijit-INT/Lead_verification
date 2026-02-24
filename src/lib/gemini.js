@@ -29,7 +29,21 @@ export async function enrichProfile(searchResults, userData) {
     Budget: ${userData.budget || "N/A"}
     
     Raw Intelligence Gathered:
-    ${JSON.stringify(searchResults, null, 2)}
+    ${JSON.stringify(
+      {
+        userLinkedIn: searchResults.userLinkedIn,
+        companyLinkedIn: searchResults.companyLinkedIn,
+        companyWebsite: searchResults.companyWebsite,
+        // Limit deep results to top 3 most relevant to keep prompt well under 15k
+        deepCompanyResults: (searchResults.deepCompanyResults || []).slice(
+          0,
+          3,
+        ),
+        deepPersonResults: (searchResults.deepPersonResults || []).slice(0, 3),
+      },
+      null,
+      2,
+    )}
     
     Advanced Investigative Protocol:
     1. CROSS-VERIFICATION: Compare User Input with Search Evidence. For the person's current identity, treat LinkedIn as the source of truth. For business alignment, financial capability, and strategic roadmap, treat official Annual Reports, Financial Statements, and Corporate LinkedIn posts as the primary source of truth.
@@ -37,29 +51,31 @@ export async function enrichProfile(searchResults, userData) {
     3. BUSINESS ALIGNMENT ANALYSIS: Critique whether the "Requirement" makes logical sense for their "Claimed Company".
     4. PUBLIC/PRIVATE FINANCIAL AUDIT: Determine if the company is Publicly Listed. Meticulously analyze the provided intelligence for "current year financial statements", "annual reports" (PDF snippets), or "investor relations" data. High-priority should be given to annual report data for generating efficient insights. If private, look for "funding rounds", "valuation news", or "next year plans".
     5. STRATEGIC ROADMAP CHECK: Look for mentions of "expansion plans", "digital transformation", or "tech initiatives" for the current/next year in annual reports or official press releases. Does the "Requirement" align with these announced plans?
-    6. BUDGET VIABILITY: Analyze the "Budget" against the 4 Lakhs (400,000 INR) project minimum for Indus Net Technologies.
-    7. SCORING LOGIC (CORE RULE): Assign an alignment score (0-100).
-       - PRIMARY FOCUS: Prioritize alignment between the "Requirement" and the Company's official data (Annual Reports, Financial Reports, Budget Reports, Strategic Roadmaps, and official Company LinkedIn posts).
-       - PERSON POSITION WEIGHTING: The seniority or position of the person making the inquiry should be considered LAST. 
-       - DEDUCTION LIMIT: If the person holds a lower position or is an associate (standard for initial inquiries), deduct ONLY 5 to 15 points maximum. Never deduct more than 15 points based on the person's profile alignment alone.
-       - Explicitly state "Points Earned" (why you gave points) and "Points Deducted" (why you cut points).
+    6. BUDGET VIABILITY: Analyze the "Budget" against the 2 Lakhs (200,000 INR) project minimum for Indus Net Technologies.
+    7. SCORING LOGIC (STRICT POSITIVE RUBRIC): The total alignment score (0-100) must be the sum of these four predefined categories:
+       - 1. FINANCIAL CAPABILITY (0-30 pts): Points awarded based on revenue, funding, or Public status indicating ability to afford 4L+ project. 
+       - 2. STRATEGIC ROADMAP ALIGNMENT (0-30 pts): Points awarded if the requirement matches official Annual Reports, expansion news, or tech roadmap.
+       - 3. INDUSTRY & REQUIREMENT FIT (0-20 pts): Points awarded if the requirement is logically sound for the company's specific industry.
+       - 4. DATA VERIFIABILITY (0-20 pts): Points awarded if data is cross-verified across multiple primary sources (LinkedIn, Reports, etc.).
+       
+       - NO NEGATIVE MARKING: Every lead starts at 0. Do not subtract points.
+       - Every "Score Attribute" must explicitly name which of the 4 categories it belongs to.
 
     JSON OUTPUT REQUIREMENTS (Be Extremely Detailed):
     {
       "businessAnalysis": {
         "requirementAnalysis": "Detailed breakdown of the requirement and its feasibility",
         "industryAlignment": "Critical check: Does the requirement match their actual business logic?",
-        "budgetAnalysis": "Analysis based on 4 Lakhs minimum threshold for Indus Net Technologies",
+        "budgetAnalysis": "Analysis based on 2 Lakhs minimum threshold for Indus Net Technologies",
         "strategicFit": "How this project fits into their current public-facing roadmap",
         "potentialRisks": [
-          "Identify specific red flags for sales (e.g. Lead asks for X but company roadmap only mentions Y; Company is in cost-cutting mode; Requirement is a 'nice-to-have' but not a strategic priority; History of similar project ghosting in industry news)."
+          "Identify specific red flags for sales (e.g. Lead asks for X but company roadmap only mentions Y; Company is in cost-cutting mode)."
         ],
         "recommendation": "Direct recommendation (High Potential / High Risk / Misaligned)",
         "alignmentScore": 0-100,
-        "scoringBreakdown": {
-          "pointsEarned": [{"point": "Score reason", "value": "+X"}],
-          "pointsDeducted": [{"point": "Deduction reason", "value": "-X"}]
-        }
+        "scoreAttributes": [
+          {"category": "Predefined Category Name", "factor": "Specific reason", "contribution": "+X"}
+        ]
       },
       "financialAudit": {
         "companyStatus": "Publicly Listed | Private Entity",

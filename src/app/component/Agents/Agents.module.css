@@ -461,6 +461,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .donutChart {
@@ -503,7 +504,7 @@
 .scoringDetails {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
@@ -565,3 +566,35 @@
   }
 }
 
+
+/* Lead Overview Styles */
+.leadOverview {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #eef2f6;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.overviewItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.overviewLabel {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.overviewValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1f36;
+}

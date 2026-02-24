@@ -64,10 +64,10 @@ export default function Home() {
           <h1>Lead Intel Dashboard</h1>
           <p>Welcome back! Here's what's happening with your leads.</p>
         </div>
-        {/* <Link href="/agent" className={styles.navButton}>
+        <Link href="/enriched" className={styles.navButton}>
           <span className="material-symbols-outlined">smart_toy</span>
-          Launch AI Agent
-        </Link> */}
+          Enriched Leads
+        </Link>
       </header>
 
       <section className={styles.statsGrid}>
@@ -136,7 +136,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className={styles.chartContainer}>
+      {/* <section className={styles.chartContainer}>
         <div className={styles.chartHeader}>
           <h5 className="mb-0">Leads Discovery Trend (Weekly)</h5>
           <div className="btn-group">
@@ -171,7 +171,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
       <div className={styles.bottomGrid}>
         <div className={styles.activityCard}>

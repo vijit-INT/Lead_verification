@@ -5,9 +5,9 @@ import Sidebar from "../component/Sidebar";
 export default function Inbox() {
   return (
     <div className="layoutWrapper">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <div className="contentArea">
-        <Header />
+        {/* <Header /> */}
         <EmailList />
       </div>
     </div>

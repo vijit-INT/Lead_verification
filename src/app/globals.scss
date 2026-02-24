@@ -5,6 +5,25 @@ body {
   font-family: Arial, sans-serif;
 }
 
+.app-header {
+  height: 70px;
+  z-index: 1001;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  .logo-text {
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #1a1f36;
+    letter-spacing: -0.5px;
+  }
+}
+
+.mainContent {
+  padding-top: 70px; // Offset for the fixed header
+  min-height: 100vh;
+  background: #f8faff;
+}
+
 // .layoutWrapper {
 //   display: grid;
 //   grid-template-columns: 260px 1fr;   // desktop: sidebar + content
