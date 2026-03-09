@@ -17,7 +17,8 @@ export default function Header() {
 
       <div className="flex-grow-1">
         {/* Global Sync Status Processor */}
-        <EmailList headerOnly={true} />
+        {/* <EmailList headerOnly={true} /> */}
+        <a href="/enriched">Enriched Leads</a>
       </div>
 
       <div className="d-flex align-items-center ms-4 position-relative">
@@ -47,9 +48,9 @@ export default function Header() {
 
               <div className={styles.settingsForm}>
                 <div className={styles.formGroup}>
-                  <label>1 - FINANCIAL CAPABILITY</label>
+                  <label>1 - CORPORATE INTELLIGENCE</label>
                   <div className={styles.inputWrapper}>
-                    <input type="text" value="30" readOnly />
+                    <input type="text" value="20" readOnly />
                     <div
                       className={styles.inputColor}
                       style={{ background: "#4f46e5" }}
@@ -58,9 +59,9 @@ export default function Header() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label>2 - STRATEGIC ROADMAP ALIGNMENT</label>
+                  <label>2 - INDIVIDUAL PROFILES</label>
                   <div className={styles.inputWrapper}>
-                    <input type="text" value="30" readOnly />
+                    <input type="text" value="10" readOnly />
                     <div
                       className={styles.inputColor}
                       style={{ background: "#7c3aed" }}
@@ -69,9 +70,9 @@ export default function Header() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label>3 - INDUSTRY & REQUIREMENT FIT</label>
+                  <label>3 - INDIVIDUAL AUTHORITY</label>
                   <div className={styles.inputWrapper}>
-                    <input type="text" value="20" readOnly />
+                    <input type="text" value="15" readOnly />
                     <div
                       className={styles.inputColor}
                       style={{ background: "#10b981" }}
@@ -80,9 +81,9 @@ export default function Header() {
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label>4 - DATA VERIFIABILITY</label>
+                  <label>4 - LOCATION</label>
                   <div className={styles.inputWrapper}>
-                    <input type="text" value="20" readOnly />
+                    <input type="text" value="5" readOnly />
                     <div
                       className={styles.inputColor}
                       style={{ background: "#f59e0b" }}

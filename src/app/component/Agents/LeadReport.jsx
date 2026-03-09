@@ -6,7 +6,7 @@ export default function LeadReport({ results, formData, reportRef }) {
   if (!results) return null;
 
   return (
-    <div className={styles.resultsContainer} ref={reportRef}>
+    <div className="lead-report-content" id="report-content">
       {/* Lead Information Overview */}
       <div className={styles.leadOverview}>
         <div className={styles.overviewItem}>
@@ -29,6 +29,27 @@ export default function LeadReport({ results, formData, reportRef }) {
           <div className={styles.overviewItem}>
             <span className={styles.overviewLabel}>Email Address</span>
             <span className={styles.overviewValue}>{formData.email}</span>
+          </div>
+        )}
+        {formData.mobile && (
+          <div className={styles.overviewItem}>
+            <span className={styles.overviewLabel}>Mobile Number</span>
+            <span className={styles.overviewValue}>{formData.mobile}</span>
+          </div>
+        )}
+        {formData.companyUrl && (
+          <div className={styles.overviewItem}>
+            <span className={styles.overviewLabel}>Company URL</span>
+            <span className={styles.overviewValue}>
+              <a
+                href={formData.companyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary"
+              >
+                {formData.companyUrl}
+              </a>
+            </span>
           </div>
         )}
         <div className={styles.overviewItem}>
@@ -60,14 +81,15 @@ export default function LeadReport({ results, formData, reportRef }) {
                 <div
                   className={styles.donutChart}
                   style={{
-                    "--percentage": results.businessAnalysis.alignmentScore,
+                    "--percentage":
+                      (results.businessAnalysis.alignmentScore / 50) * 100,
                   }}
                 >
                   <div className={styles.donutInternal}>
                     <span className={styles.donutScore}>
                       {results.businessAnalysis.alignmentScore}
                     </span>
-                    <span className={styles.donutLabel}>Score</span>
+                    <span className={styles.donutLabel}>out of 50</span>
                   </div>
                 </div>
               </div>
@@ -83,36 +105,50 @@ export default function LeadReport({ results, formData, reportRef }) {
                       : "Scoring Breakdown"}
                   </h6>
                   <div className={styles.pointList}>
-                    {/* Handle New Structure: scoreAttributes */}
-                    {results.businessAnalysis.scoreAttributes?.map(
-                      (item, idx) => {
-                        const categoryWeights = {
-                          "FINANCIAL CAPABILITY": 30,
-                          "STRATEGIC ROADMAP ALIGNMENT": 30,
-                          "INDUSTRY & REQUIREMENT FIT": 20,
-                          "DATA VERIFIABILITY": 20,
-                        };
-                        const maxPoints =
-                          categoryWeights[item.category?.toUpperCase()] || 0;
+                    {/* Handle New Structure: scoreAttributes with De-duplication safeguard */}
+                    {Object.values(
+                      results.businessAnalysis.scoreAttributes?.reduce(
+                        (acc, item) => {
+                          const cat = item.category?.toUpperCase();
+                          if (!acc[cat]) {
+                            acc[cat] = item;
+                          } else {
+                            // Consolidate factors if duplicate found
+                            acc[cat].factor += ` | ${item.factor}`;
+                            acc[cat].contribution =
+                              `+${parseInt(acc[cat].contribution) + parseInt(item.contribution)}`;
+                          }
+                          return acc;
+                        },
+                        {},
+                      ) || {},
+                    ).map((item, idx) => {
+                      const categoryWeights = {
+                        "CORPORATE INTELLIGENCE": 20,
+                        "INDIVIDUAL PROFILES": 10,
+                        "INDIVIDUAL AUTHORITY": 15,
+                        LOCATION: 5,
+                      };
+                      const maxPoints =
+                        categoryWeights[item.category?.toUpperCase()] || 0;
 
-                        return (
-                          <div key={idx} className={styles.pointItem}>
-                            <span>
-                              <strong className="text-secondary opacity-75">
-                                {item.category}{" "}
-                                {maxPoints > 0 && `(Max ${maxPoints})`}:
-                              </strong>{" "}
-                              {item.factor}
-                            </span>
-                            <span
-                              className={`${styles.pointValue} ${styles.earnedValue}`}
-                            >
-                              {item.contribution}
-                            </span>
-                          </div>
-                        );
-                      },
-                    )}
+                      return (
+                        <div key={idx} className={styles.pointItem}>
+                          <span>
+                            <strong className="text-secondary opacity-75">
+                              {item.category}{" "}
+                              {maxPoints > 0 && `(Max ${maxPoints})`}:
+                            </strong>{" "}
+                            {item.factor}
+                          </span>
+                          <span
+                            className={`${styles.pointValue} ${styles.earnedValue}`}
+                          >
+                            {item.contribution}
+                          </span>
+                        </div>
+                      );
+                    })}
 
                     {/* Handle Old Structure: scoringBreakdown.pointsEarned (Backwards Compatibility) */}
                     {!results.businessAnalysis.scoreAttributes &&
@@ -154,7 +190,7 @@ export default function LeadReport({ results, formData, reportRef }) {
             <div className="mt-4 p-3 bg-light rounded border">
               <div className="d-flex align-items-center gap-3">
                 <div
-                  className={`badge ${results.businessAnalysis.alignmentScore > 70 ? "bg-success" : "bg-warning"} text-wrap`}
+                  className={`badge ${results.businessAnalysis.alignmentScore > 35 ? "bg-success" : "bg-warning"} text-wrap`}
                 >
                   {results.businessAnalysis.recommendation}
                 </div>
@@ -168,7 +204,61 @@ export default function LeadReport({ results, formData, reportRef }) {
         </div>
       )}
 
-      {/* Potential Risk Section */}
+      {/* Company's Core Requirement Section */}
+      {results.companyCoreRequirement && (
+        <div className={`${styles.resultCard} card shadow-sm mb-4`}>
+          <div className="card-header bg-primary text-white">
+            <h5 className="mb-0 d-flex align-items-center">
+              <span className="material-symbols-outlined me-2">inventory</span>
+              Company's Core Requirement
+            </h5>
+          </div>
+          <div className="card-body">
+            <div className="row">
+              <div className="col-md-12 mb-4">
+                <h6 className="text-primary d-flex align-items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined">
+                    shopping_bag
+                  </span>
+                  Core Business Products
+                </h6>
+                <div className="d-flex flex-wrap gap-2 mb-3">
+                  {results.companyCoreRequirement.coreProducts?.map(
+                    (product, idx) => (
+                      <span
+                        key={idx}
+                        className="badge bg-light text-dark border"
+                      >
+                        {product}
+                      </span>
+                    ),
+                  )}
+                </div>
+              </div>
+              <div className="col-md-6 mb-4">
+                <h6 className="text-primary d-flex align-items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined">stars</span>
+                  Key Offerings & Model
+                </h6>
+                <div className="p-3 border rounded bg-white small">
+                  {results.companyCoreRequirement.keyOfferings}
+                </div>
+              </div>
+              <div className="col-md-6 mb-4">
+                <h6 className="text-primary d-flex align-items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined">
+                    present_to_all
+                  </span>
+                  Presentation Insights
+                </h6>
+                <div className="p-3 border rounded bg-white small">
+                  {results.companyCoreRequirement.businessPresentation}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {results.businessAnalysis?.potentialRisks &&
         results.businessAnalysis.potentialRisks.length > 0 && (
           <div
@@ -406,11 +496,59 @@ export default function LeadReport({ results, formData, reportRef }) {
           </div>
           <div className="card-body">
             <div className="row">
+              <div className="col-12 mb-3">
+                {results.userProfile.isFound === false ? (
+                  <div className="alert alert-warning d-flex align-items-center gap-2 mb-3 fw-bold">
+                    <span className="material-symbols-outlined">
+                      person_off
+                    </span>
+                    <div>
+                      <strong>USER NOT FOUND:</strong> We could not find a
+                      verified profile for this name on LinkedIn or public web.
+                    </div>
+                  </div>
+                ) : results.userProfile.isCompanyMatch === false ? (
+                  <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
+                    <span className="material-symbols-outlined">warning</span>
+                    <div>
+                      <span className="badge bg-danger mb-2">MISMATCH</span>
+                      <br />
+                      <strong>Company Mismatch:</strong>{" "}
+                      {results.userProfile.claimedCompanyMatchAnalysis}
+                    </div>
+                  </div>
+                ) : (
+                  results.userProfile.claimedCompanyMatchAnalysis && (
+                    <div className="alert alert-success d-flex align-items-center gap-2 mb-3">
+                      <span className="material-symbols-outlined">
+                        verified
+                      </span>
+                      <div>
+                        <strong>Company Association Verified:</strong>{" "}
+                        {results.userProfile.claimedCompanyMatchAnalysis}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
               <div className="col-md-6 mb-3">
                 <strong>Full Name:</strong>{" "}
                 {results.userProfile.fullName || "N/A"}
               </div>
               <div className="col-md-6 mb-3">
+                <strong>Current Company:</strong>{" "}
+                <span
+                  className={
+                    results.userProfile.isCompanyMatch === false ||
+                    results.userProfile.isFound === false
+                      ? "text-danger fw-bold"
+                      : "text-success"
+                  }
+                >
+                  {results.userProfile.currentCompany || "N/A"}
+                </span>
+              </div>
+              <div className="col-md-12 mb-3">
                 <strong>Current Role:</strong>{" "}
                 {results.userProfile.currentRole || "N/A"}
               </div>

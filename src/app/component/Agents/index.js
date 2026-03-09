@@ -27,7 +27,9 @@ export default function Agents() {
     name: "",
     role: "",
     email: "",
+    mobile: "",
     companyName: "",
+    companyUrl: "",
     requirement: "",
     budget: "",
   });
@@ -79,16 +81,29 @@ export default function Agents() {
     const company = searchParams.get("company");
     const role = searchParams.get("role");
     const email = searchParams.get("email");
+    const mobile = searchParams.get("mobile");
+    const companyUrl = searchParams.get("companyUrl");
     const budget = searchParams.get("budget");
     const requirement = searchParams.get("requirement");
     const autoStart = searchParams.get("autoStart");
 
-    if (name || company || role || email || budget || requirement) {
+    if (
+      name ||
+      company ||
+      role ||
+      email ||
+      mobile ||
+      companyUrl ||
+      budget ||
+      requirement
+    ) {
       const newFormData = {
         name: name || "",
         companyName: company || "",
         role: role || "",
         email: email || "",
+        mobile: mobile || "",
+        companyUrl: companyUrl || "",
         budget: budget || "",
         requirement: requirement || "",
       };
@@ -157,6 +172,8 @@ export default function Agents() {
           companyName: data.companyName,
           role: data.role,
           email_address: data.email,
+          mobile: data.mobile,
+          company_url: data.companyUrl,
           requirement: data.requirement,
           budget: data.budget,
           responce_results: JSON.stringify(enrichedData),
@@ -165,6 +182,8 @@ export default function Agents() {
             companyName: data.companyName,
             role: data.role,
             email: data.email,
+            mobile: data.mobile,
+            companyUrl: data.companyUrl,
             requirement: data.requirement,
             budget: data.budget,
           }),
@@ -291,31 +310,65 @@ export default function Agents() {
     // Wait for animations and menu to close
     setTimeout(() => {
       html2canvas(element, {
-        scale: 3, // High resolution
+        scale: 3, // Still high, but more memory-stable than 4
         useCORS: true,
         logging: false,
-        backgroundColor: "#f8faff",
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        imageSmoothingEnabled: false, // Prevents blurring
+        windowWidth: 1200, // Forces a wide viewport for consistent rendering
         scrollY: -window.scrollY,
         onclone: (clonedDoc) => {
-          // Force visibility and stop animations in the cloned version
           const clonedEl = clonedDoc.querySelector(
             `.${styles.resultsContainer}`,
           );
+
           if (clonedEl) {
+            // Force reset of ALL parent opacities to 1
+            let parent = clonedEl.parentElement;
+            while (parent) {
+              parent.style.opacity = "1";
+              parent.style.filter = "none";
+              parent.style.backdropFilter = "none";
+              parent = parent.parentElement;
+            }
+
             clonedEl.style.animation = "none";
             clonedEl.style.opacity = "1";
             clonedEl.style.transform = "none";
+            clonedEl.style.transition = "none";
             clonedEl.style.visibility = "visible";
-            clonedEl.style.width = "800px"; // Standard width for clean A4 capture
+            clonedEl.style.width = "1200px";
             clonedEl.style.padding = "40px";
-            clonedEl.style.margin = "0";
+            clonedEl.style.margin = "0 auto";
+            clonedEl.style.background = "#ffffff";
           }
-          // Ensure all cards are visible
-          clonedDoc.querySelectorAll(".card").forEach((card) => {
-            card.style.opacity = "1";
-            card.style.transform = "none";
-            card.style.animation = "none";
+
+          // Kill ALL filters/shadows in the entire cloned document
+          clonedDoc.querySelectorAll("*").forEach((node) => {
+            const style = window.getComputedStyle(node);
+            if (
+              style.filter !== "none" ||
+              style.backdropFilter !== "none" ||
+              style.boxShadow !== "none" ||
+              style.opacity !== "1"
+            ) {
+              node.style.filter = "none";
+              node.style.backdropFilter = "none";
+              node.style.opacity = "1";
+              node.style.transition = "none";
+              node.style.animation = "none";
+            }
           });
+
+          // Specific card reset
+          clonedDoc
+            .querySelectorAll(".card, [class*='Card'], [class*='leadOverview']")
+            .forEach((card) => {
+              card.style.boxShadow = "none";
+              card.style.border = "1px solid #e2e8f0";
+              card.style.backgroundColor = "#ffffff";
+            });
         },
         ignoreElements: (el) => {
           return (
@@ -332,8 +385,8 @@ export default function Agents() {
             chatInputArea.style.display = originalChatInputDisplay;
           if (clearBtn) clearBtn.style.display = originalClearBtnDisplay;
 
-          const imgData = canvas.toDataURL("image/jpeg", 1.0);
-          const pdf = new jsPDF("p", "mm", "a4");
+          const imgData = canvas.toDataURL("image/png", 1.0);
+          const pdf = new jsPDF("p", "mm", "a4", true); // Compress PDF
           const pdfWidth = pdf.internal.pageSize.getWidth();
           const pdfHeight = pdf.internal.pageSize.getHeight();
 
@@ -447,9 +500,9 @@ export default function Agents() {
           </h1>
           <p>Find and enrich profile data with autonomous AI agents.</p>
         </div>
-        <Link href="/" className={styles.backButton}>
+        <Link href="/enriched" className={styles.backButton}>
           <span className="material-symbols-outlined">dashboard</span>
-          Back to Dashboard
+          Enriched List
         </Link>
       </div>
 
@@ -519,6 +572,32 @@ export default function Agents() {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="e.g., name@company.com"
+                  />
+                </div>
+
+                <div className={styles.inputField}>
+                  <label htmlFor="mobile">Mobile Number</label>
+                  <input
+                    type="text"
+                    className={styles.customInput}
+                    id="mobile"
+                    name="mobile"
+                    value={formData.mobile}
+                    onChange={handleInputChange}
+                    placeholder="e.g., +91 7905597148"
+                  />
+                </div>
+
+                <div className={styles.inputField}>
+                  <label htmlFor="companyUrl">Company Website URL</label>
+                  <input
+                    type="url"
+                    className={styles.customInput}
+                    id="companyUrl"
+                    name="companyUrl"
+                    value={formData.companyUrl}
+                    onChange={handleInputChange}
+                    placeholder="e.g., https://www.company.com"
                   />
                 </div>
 

@@ -25,6 +25,7 @@ export async function enrichProfile(searchResults, userData) {
     Target Person: ${userData.name}
     Claimed Role: ${userData.role}
     Claimed Company: ${userData.companyName}
+    Company URL: ${userData.companyUrl || "N/A"}
     Requirement: ${userData.requirement || "N/A"}
     Budget: ${userData.budget || "N/A"}
     
@@ -34,6 +35,7 @@ export async function enrichProfile(searchResults, userData) {
         userLinkedIn: searchResults.userLinkedIn,
         companyLinkedIn: searchResults.companyLinkedIn,
         companyWebsite: searchResults.companyWebsite,
+        providedCompanyUrl: userData.companyUrl,
         // Limit deep results to top 3 most relevant to keep prompt well under 15k
         deepCompanyResults: (searchResults.deepCompanyResults || []).slice(
           0,
@@ -52,14 +54,22 @@ export async function enrichProfile(searchResults, userData) {
     4. PUBLIC/PRIVATE FINANCIAL AUDIT: Determine if the company is Publicly Listed. Meticulously analyze the provided intelligence for "current year financial statements", "annual reports" (PDF snippets), or "investor relations" data. High-priority should be given to annual report data for generating efficient insights. If private, look for "funding rounds", "valuation news", or "next year plans".
     5. STRATEGIC ROADMAP CHECK: Look for mentions of "expansion plans", "digital transformation", or "tech initiatives" for the current/next year in annual reports or official press releases. Does the "Requirement" align with these announced plans?
     6. BUDGET VIABILITY: Analyze the "Budget" against the 2 Lakhs (200,000 INR) project minimum for Indus Net Technologies.
-    7. SCORING LOGIC (STRICT POSITIVE RUBRIC): The total alignment score (0-100) must be the sum of these four predefined categories:
-       - 1. FINANCIAL CAPABILITY (0-30 pts): Points awarded based on revenue, funding, or Public status indicating ability to afford 4L+ project. 
-       - 2. STRATEGIC ROADMAP ALIGNMENT (0-30 pts): Points awarded if the requirement matches official Annual Reports, expansion news, or tech roadmap.
-       - 3. INDUSTRY & REQUIREMENT FIT (0-20 pts): Points awarded if the requirement is logically sound for the company's specific industry.
-       - 4. DATA VERIFIABILITY (0-20 pts): Points awarded if data is cross-verified across multiple primary sources (LinkedIn, Reports, etc.).
+    7. COMPANY ASSOCIATION VERIFICATION: Critically compare the "Claimed Company" (${userData.companyName}) with the person's current company found in the search results (LinkedIn/Web). 
+       - If they differ, flag it as a mismatch (isCompanyMatch: false).
+       - If they are the same, confirm the association (isCompanyMatch: true).
+       - If the person cannot be found at all, set isFound: false.
+       - If the user recently changed companies, document the transition.
+    8. CORE BUSINESS ANALYSIS: If a Company URL is provided (${userData.companyUrl}), or based on search results, identify the company's core business products. Determine what key value propositions can be presented regarding their business.
+    9. SCORING LOGIC (STRICT POSITIVE RUBRIC): The total alignment score (0-50) must be the sum of these four predefined categories. 
+       - IMPORTANT: Provide EXACTLY ONE score attribute per category. Consolidate multiple reasons into a single 'factor' string.
+       
+       - 1. CORPORATE INTELLIGENCE (0-20 pts): Consolidate Financial Capability, Strategic Roadmap, and Industry Fit into one entry.
+       - 2. INDIVIDUAL PROFILES (0-10 pts): Points for personal professional standing. 
+            CRITICAL: If isCompanyMatch is false or isFound is false, this score MUST be 0.
+       - 3. INDIVIDUAL AUTHORITY (0-15 pts): Decision-making power. High (10-15) for C-suite/Founders, Low (0-5) for others.
+       - 4. LOCATION (0-5 pts): High (5) for English-speaking/Tier-1 countries, Low (0-2) for high-risk/non-English countries.
        
        - NO NEGATIVE MARKING: Every lead starts at 0. Do not subtract points.
-       - Every "Score Attribute" must explicitly name which of the 4 categories it belongs to.
 
     JSON OUTPUT REQUIREMENTS (Be Extremely Detailed):
     {
@@ -72,10 +82,18 @@ export async function enrichProfile(searchResults, userData) {
           "Identify specific red flags for sales (e.g. Lead asks for X but company roadmap only mentions Y; Company is in cost-cutting mode)."
         ],
         "recommendation": "Direct recommendation (High Potential / High Risk / Misaligned)",
-        "alignmentScore": 0-100,
+        "alignmentScore": 0-50,
         "scoreAttributes": [
-          {"category": "Predefined Category Name", "factor": "Specific reason", "contribution": "+X"}
+          {"category": "CORPORATE INTELLIGENCE", "factor": "Consolidated explanation", "contribution": "+X"},
+          {"category": "INDIVIDUAL PROFILES", "factor": "Consolidated explanation", "contribution": "+X"},
+          {"category": "INDIVIDUAL AUTHORITY", "factor": "Consolidated explanation", "contribution": "+X"},
+          {"category": "LOCATION", "factor": "Consolidated explanation", "contribution": "+X"}
         ]
+      },
+      "companyCoreRequirement": {
+        "coreProducts": ["List of core business products/services"],
+        "businessPresentation": "Consolidated summary of what we can present regarding their business to impress them",
+        "keyOfferings": "Primary business model and revenue drivers"
       },
       "financialAudit": {
         "companyStatus": "Publicly Listed | Private Entity",
@@ -85,8 +103,12 @@ export async function enrichProfile(searchResults, userData) {
         "listingDetails": "Stock exchange info if public, or latest funding info if private"
       },
       "userProfile": {
+        "isFound": true/false,
         "fullName": "...",
         "currentRole": "...",
+        "currentCompany": "Current company found from search",
+        "isCompanyMatch": true/false,
+        "claimedCompanyMatchAnalysis": "Detailed analysis of whether they actually work at ${userData.companyName} or if they have moved on/never worked there, or if they couldn't be found.",
         "linkedinProfileUrl": "...",
         "linkedinProfileId": "...",
         "location": "...",

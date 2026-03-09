@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
       </head>
 
       <body suppressHydrationWarning>
-        <Header />
+        {/* <Header /> */}
         <main className="mainContent">{children}</main>
         <Script src="/app.js" strategy="afterInteractive" />
       </body>
