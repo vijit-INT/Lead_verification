@@ -40,6 +40,7 @@ export default function Agents() {
   const [searchId, setSearchId] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const [autoDownloadTrigger, setAutoDownloadTrigger] = useState(false);
   const reportRef = useRef(null);
 
   const handleInputChange = (e) => {
@@ -166,6 +167,7 @@ export default function Agents() {
 
       if (enrichedData) {
         setResults(enrichedData);
+        setAutoDownloadTrigger(true); // Trigger auto download
 
         const payload = {
           fullname: data.name,
@@ -445,6 +447,16 @@ export default function Agents() {
         });
     }, 500);
   };
+
+  useEffect(() => {
+    if (autoDownloadTrigger && results && reportRef.current) {
+      // Small delay to ensure DOM is fully rendered before PDF capture
+      setTimeout(() => {
+        downloadPDF(false); // Auto-download report only (no chat)
+        setAutoDownloadTrigger(false);
+      }, 1000);
+    }
+  }, [autoDownloadTrigger, results]);
 
   // GET Request (Example placeholder)
   const handleGet = async () => {
