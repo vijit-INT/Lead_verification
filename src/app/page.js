@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import axios from "axios";
 import Link from "next/link";
 import styles from "./page.module.css";
@@ -60,7 +60,9 @@ export default function Home() {
 
   return (
     <>
-      <Agents />
+      <Suspense fallback={null}>
+        <Agents />
+      </Suspense>
       <div className={styles.dashboard} style={{ display: "none" }}>
         <header className={styles.header}>
           <div className={styles.welcome}>
