@@ -41,7 +41,7 @@ export default function EnrichedPage() {
         </div>
         <Link href="/" className={styles.navButton}>
           <span className="material-symbols-outlined">dashboard</span>
-          Back to Dashboard
+          Back to Agent
         </Link>
       </header>
 
