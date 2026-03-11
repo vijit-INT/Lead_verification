@@ -1,38 +1,27 @@
 import axios from "axios";
 
-const SERP_API_KEY = process.env.NEXT_PUBLIC_SERP_API_KEY;
-
 /**
  * Executes a search query using SERP API
  * @param {string} query
  * @returns {Promise<Array>} List of search items
  */
 export async function googleSearch(query) {
-  if (!SERP_API_KEY) {
-    console.error("Missing SERP API configuration");
-    return [];
-  }
-
   try {
-    const res = await axios.get("https://serpapi.com/search", {
-      params: {
-        api_key: SERP_API_KEY,
-        q: query,
-        engine: "google",
-      },
+    // Calls the local Next.js server-side proxy at /api/serp
+    // This avoids CORS errors — the proxy calls SerpApi from the server, not the browser
+    const res = await axios.get("/api/serp", {
+      params: { q: query },
     });
 
     // Transform SERP API response to match expected format
     const items = res.data.organic_results || [];
-    return (
-      items.map((item) => ({
-        link: item.link,
-        title: item.title,
-        snippet: item.snippet,
-      })) || []
-    );
+    return items.map((item) => ({
+      link: item.link,
+      title: item.title,
+      snippet: item.snippet,
+    }));
   } catch (error) {
-    console.error("SERP API Error:", error);
+    console.error("SERP API Error:", error?.response?.data || error.message);
     return [];
   }
 }
