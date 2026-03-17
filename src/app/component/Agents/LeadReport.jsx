@@ -55,7 +55,7 @@ export default function LeadReport({ results, formData, reportRef }) {
         <div className={styles.overviewItem}>
           <span className={styles.overviewLabel}>Budget</span>
           <span className={styles.overviewValue}>
-            {formData.budget || "N/A"}
+            {formData.budget || "400000"}
           </span>
         </div>
         <div className={styles.overviewItem}>

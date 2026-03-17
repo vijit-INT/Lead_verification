@@ -114,6 +114,11 @@
   outline: none;
 }
 
+textarea.customInput {
+  min-height: 100px;
+  resize: vertical;
+}
+
 .searchBtn {
   height: 50px;
   background: #4f46e5;
@@ -144,6 +149,8 @@
   border: none;
   border-radius: 12px;
   margin-bottom: 1.5rem;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .resultCard .card-header {
@@ -577,6 +584,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .overviewItem {

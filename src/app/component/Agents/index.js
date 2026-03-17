@@ -118,7 +118,12 @@ export default function Agents() {
   }, [searchParams]);
 
   const startInvestigation = async (overriddenData = null) => {
-    const data = overriddenData || formData;
+    let data = { ...(overriddenData || formData) };
+
+    // Default budget to 400000 if not provided
+    if (!data.budget || data.budget.trim() === "") {
+      data.budget = "400000";
+    }
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -388,48 +393,47 @@ export default function Agents() {
           if (clearBtn) clearBtn.style.display = originalClearBtnDisplay;
 
           const imgData = canvas.toDataURL("image/png", 1.0);
-          const pdf = new jsPDF("p", "mm", "a4", true); // Compress PDF
+          const pdf = new jsPDF("p", "mm", "a4", true);
           const pdfWidth = pdf.internal.pageSize.getWidth();
           const pdfHeight = pdf.internal.pageSize.getHeight();
 
+          const margin = 10; // 10mm margin
+          const contentWidth = pdfWidth - 2 * margin;
+          const contentHeight = pdfHeight - 2 * margin;
+
           const imgWidth = canvas.width;
           const imgHeight = canvas.height;
-          const ratio = pdfWidth / imgWidth;
+          const ratio = contentWidth / imgWidth;
 
-          const finalWidth = pdfWidth;
+          const finalWidth = contentWidth;
           const finalHeight = imgHeight * ratio;
 
           let heightLeft = finalHeight;
-          let position = 0;
+          let currentPage = 0;
 
-          // Add first page
-          pdf.addImage(
-            imgData,
-            "JPEG",
-            0,
-            position,
-            finalWidth,
-            finalHeight,
-            undefined,
-            "FAST",
-          );
-          heightLeft -= pdfHeight;
-
-          // Add extra pages if needed
           while (heightLeft > 0) {
-            position = heightLeft - finalHeight;
-            pdf.addPage();
+            if (currentPage > 0) pdf.addPage();
+            currentPage++;
+
+            const position = margin - (currentPage - 1) * contentHeight;
+
             pdf.addImage(
               imgData,
-              "JPEG",
-              0,
+              "PNG",
+              margin,
               position,
               finalWidth,
               finalHeight,
               undefined,
               "FAST",
             );
-            heightLeft -= pdfHeight;
+
+            // Cover margins with white rectangles to prevent content duplication at page breaks
+            pdf.setFillColor(255, 255, 255);
+            pdf.rect(0, 0, pdfWidth, margin, "F"); // Top mask
+            pdf.rect(0, pdfHeight - margin, pdfWidth, margin, "F"); // Bottom mask
+
+            heightLeft -= contentHeight;
           }
 
           const fileName = `Investigation_Report_${formData.name.replace(/\s+/g, "_") || "Lead"}.pdf`;
@@ -562,6 +566,38 @@ export default function Agents() {
                 </div>
 
                 <div className={styles.inputField}>
+                  <label htmlFor="email">
+                    Email Address <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    className={styles.customInput}
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., name@company.com"
+                  />
+                </div>
+
+                <div className={styles.inputField}>
+                  <label htmlFor="companyUrl">
+                    Company Website URL <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className={styles.customInput}
+                    id="companyUrl"
+                    name="companyUrl"
+                    value={formData.companyUrl}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., https://www.company.com"
+                  />
+                </div>
+
+                <div className={styles.inputField}>
                   <label htmlFor="role">Industry/Role</label>
                   <input
                     type="text"
@@ -573,17 +609,31 @@ export default function Agents() {
                     placeholder="e.g., Software Engineer"
                   />
                 </div>
-
                 <div className={styles.inputField}>
-                  <label htmlFor="email">Email Address</label>
-                  <input
-                    type="email"
+                  <label htmlFor="requirement">
+                    Business Requirement <span className="text-danger">*</span>
+                  </label>
+                  <textarea
                     className={styles.customInput}
-                    id="email"
-                    name="email"
-                    value={formData.email}
+                    id="requirement"
+                    name="requirement"
+                    required
+                    value={formData.requirement}
                     onChange={handleInputChange}
-                    placeholder="e.g., name@company.com"
+                    placeholder="e.g., Needs Mobile App for Real Estate"
+                    rows="3"
+                  />
+                </div>
+                <div className={styles.inputField}>
+                  <label htmlFor="budget">Project Budget (INR)</label>
+                  <input
+                    type="text"
+                    className={styles.customInput}
+                    id="budget"
+                    name="budget"
+                    value={formData.budget}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 5,00,000"
                   />
                 </div>
 
@@ -597,48 +647,6 @@ export default function Agents() {
                     value={formData.mobile}
                     onChange={handleInputChange}
                     placeholder="e.g., +91 7905597148"
-                  />
-                </div>
-
-                <div className={styles.inputField}>
-                  <label htmlFor="companyUrl">Company Website URL</label>
-                  <input
-                    type="url"
-                    className={styles.customInput}
-                    id="companyUrl"
-                    name="companyUrl"
-                    value={formData.companyUrl}
-                    onChange={handleInputChange}
-                    placeholder="e.g., https://www.company.com"
-                  />
-                </div>
-
-                <div className={styles.inputField}>
-                  <label htmlFor="requirement">
-                    Business Requirement <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className={styles.customInput}
-                    id="requirement"
-                    name="requirement"
-                    required
-                    value={formData.requirement}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Needs Mobile App for Real Estate"
-                  />
-                </div>
-
-                <div className={styles.inputField}>
-                  <label htmlFor="budget">Project Budget (INR)</label>
-                  <input
-                    type="text"
-                    className={styles.customInput}
-                    id="budget"
-                    name="budget"
-                    value={formData.budget}
-                    onChange={handleInputChange}
-                    placeholder="e.g., 5,00,000"
                   />
                 </div>
 

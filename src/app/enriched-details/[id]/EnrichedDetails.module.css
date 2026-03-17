@@ -86,6 +86,8 @@
   border-radius: 12px;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .resultCard:hover {

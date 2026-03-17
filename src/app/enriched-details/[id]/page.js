@@ -161,15 +161,15 @@ export default function EnrichedDetails() {
             clonedEl.style.opacity = "1";
             clonedEl.style.transform = "none";
             clonedEl.style.visibility = "visible";
-            clonedEl.style.width = "800px"; // Standard width for clean A4 capture
+            clonedEl.style.width = "1200px"; // Wider for better resolution
             clonedEl.style.padding = "40px";
-            clonedEl.style.margin = "0";
+            clonedEl.style.margin = "0 auto";
+            clonedEl.style.background = "#ffffff";
           }
-          // Ensure all cards are visible
-          clonedDoc.querySelectorAll(".card").forEach((card) => {
-            card.style.opacity = "1";
-            card.style.transform = "none";
-            card.style.animation = "none";
+          // Kill animations and force visibility
+          clonedDoc.querySelectorAll("*").forEach((node) => {
+            node.style.animation = "none";
+            node.style.transition = "none";
           });
         },
         ignoreElements: (el) => {
@@ -187,49 +187,48 @@ export default function EnrichedDetails() {
             chatInputArea.style.display = originalChatInputDisplay;
           if (clearBtn) clearBtn.style.display = originalClearBtnDisplay;
 
-          const imgData = canvas.toDataURL("image/jpeg", 1.0);
-          const pdf = new jsPDF("p", "mm", "a4");
+          const imgData = canvas.toDataURL("image/png", 1.0);
+          const pdf = new jsPDF("p", "mm", "a4", true);
           const pdfWidth = pdf.internal.pageSize.getWidth();
           const pdfHeight = pdf.internal.pageSize.getHeight();
+          
+          const margin = 10; // 10mm margin
+          const contentWidth = pdfWidth - (2 * margin);
+          const contentHeight = pdfHeight - (2 * margin);
 
           const imgWidth = canvas.width;
           const imgHeight = canvas.height;
-          const ratio = pdfWidth / imgWidth;
+          const ratio = contentWidth / imgWidth;
 
-          const finalWidth = pdfWidth;
+          const finalWidth = contentWidth;
           const finalHeight = imgHeight * ratio;
 
           let heightLeft = finalHeight;
-          let position = 0;
+          let currentPage = 0;
 
-          // Add first page
-          pdf.addImage(
-            imgData,
-            "JPEG",
-            0,
-            position,
-            finalWidth,
-            finalHeight,
-            undefined,
-            "FAST",
-          );
-          heightLeft -= pdfHeight;
-
-          // Add extra pages if needed
           while (heightLeft > 0) {
-            position = heightLeft - finalHeight;
-            pdf.addPage();
+            if (currentPage > 0) pdf.addPage();
+            currentPage++;
+
+            const position = margin - (currentPage - 1) * contentHeight;
+
             pdf.addImage(
               imgData,
-              "JPEG",
-              0,
+              "PNG",
+              margin,
               position,
               finalWidth,
               finalHeight,
               undefined,
               "FAST",
             );
-            heightLeft -= pdfHeight;
+
+            // Cover margins with white rectangles to prevent content duplication
+            pdf.setFillColor(255, 255, 255);
+            pdf.rect(0, 0, pdfWidth, margin, "F"); // Top mask
+            pdf.rect(0, pdfHeight - margin, pdfWidth, margin, "F"); // Bottom mask
+
+            heightLeft -= contentHeight;
           }
 
           const fileName = `Enriched_Report_${data.name.replace(/\s+/g, "_") || "Lead"}.pdf`;
